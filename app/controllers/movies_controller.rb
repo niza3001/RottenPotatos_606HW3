@@ -12,8 +12,15 @@ class MoviesController < ApplicationController
 
   def index
       @all_ratings = Movie.all_ratings
-      ratings = params[:ratings] ? (params[:ratings].keys) : @all_ratings
-      @movies_rated = Movie.where(rating: ratings)
+      if params[:ratings]
+    
+      else
+      params[:ratings] = {}
+      @all_ratings.each do |r|
+      params[:ratings][r] = 1
+     end
+    end
+      @movies_rated = Movie.where(rating: params[:ratings].keys)
       
     if params[:sort_by].to_s == 'title' #if sorting by title
           @sort_by_title = 'hilite' #make titles yellow
