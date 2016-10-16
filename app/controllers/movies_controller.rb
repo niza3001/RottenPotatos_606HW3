@@ -11,14 +11,18 @@ class MoviesController < ApplicationController
   end
 
   def index
-      if params[:sort_by].to_s == 'title' #if sorting by title
+      @all_ratings = Movie.all_ratings
+      ratings = params[:ratings] ? (params[:ratings].keys) : @all_ratings
+      @movies_rated = Movie.where(rating: ratings)
+      
+    if params[:sort_by].to_s == 'title' #if sorting by title
           @sort_by_title = 'hilite' #make titles yellow
-          @movies = Movie.all.order(params[:sort_by]) #sort by title
-          elsif params[:sort_by].to_s == 'release_date' #same as above for release  date
-        @sort_by_release_date = 'hilite'
-        @movies = Movie.all.order(params[:sort_by])
+          @movies = @movies_rated.order(params[:sort_by]) #sort by title
+    elsif params[:sort_by].to_s == 'release_date' #same as above for release  date
+          @sort_by_release_date = 'hilite'
+          @movies = @movies_rated.order(params[:sort_by])
     else
-        @movies = Movie.all
+        @movies = @movies_rated
     end
   end
 
