@@ -11,27 +11,43 @@ class MoviesController < ApplicationController
   end
 
   def index
+      
       @all_ratings = Movie.all_ratings
-      if params[:ratings]
-    
-      else
-      params[:ratings] = {}
-      @all_ratings.each do |r|
-      params[:ratings][r] = 1
-     end
-    end
-      @movies_rated = Movie.where(rating: params[:ratings].keys)
+      
+      if params[:ratings].nil?     #if the user has not set any rating
+          if session[:ratings].nil?   #and the session history is also empty
+              session[:ratings] = {}
+          @all_ratings.each do |r|
+              session[:ratings][r] = 1  #check all ratings
+        end
+          end
+        else
+        session[:ratings] = params[:ratings]
+      end
+      
+      if params[:sort_by].nil?
+        if session[:sort_by].nil?
+            session[:sort_by] = "id" #if no other option is chosen arrange by id
+        end
+        else
+        session[:sort_by] = params[:sort_by]
+        end
+      #if the user has not chosen a setting yet, use session
+      if params[:ratings].nil? || params[:sort_by].nil?
+      redirect_to movies_url(sort_by: session[:sort_by], ratings: session[:ratings])
+      
+      end
+      @movies = Movie.where(rating: session[:ratings].keys)
       
     if params[:sort_by].to_s == 'title' #if sorting by title
           @sort_by_title = 'hilite' #make titles yellow
-          @movies = @movies_rated.order(params[:sort_by]) #sort by title
+          @movies = @movies.order(params[:sort_by]) #sort by title
     elsif params[:sort_by].to_s == 'release_date' #same as above for release  date
           @sort_by_release_date = 'hilite'
-          @movies = @movies_rated.order(params[:sort_by])
-    else
-        @movies = @movies_rated
+          @movies = @movies.order(params[:sort_by])
     end
-  end
+    
+    end
 
   def new
     # default: render 'new' template
